@@ -1,0 +1,239 @@
+package com.grootan.project.conferences;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
+import com.grootan.project.configs.configs;
+import com.grootan.project.events.event;
+
+
+public class scheduleConference {
+
+    //
+    public static int scheduleEvents(int eventCountIndex, List<event> eventNames,
+                                     int eventCount, int startEventIndex, int totalEventCount){
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a");
+        Calendar cal = new GregorianCalendar();
+        cal.set(Calendar.HOUR, 9);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.AM_PM, Calendar.AM);
+
+        int sumMorning = configs.MORNING_DURATION;
+        int sumAfternoon = configs.AFTERNOON_DURATION;
+
+        int eventIndex;
+
+        String sessionTime;
+        String SessionTitle;
+
+
+        for(eventIndex=startEventIndex; eventIndex< totalEventCount;eventIndex++) {
+
+            // Get the combination of 180 and fill it
+            if (sumMorning >= eventNames.get(eventIndex).getMinutes()) {
+                sumMorning = sumMorning - eventNames.get(eventIndex).getMinutes();
+
+                sessionTime = sdf.format(cal.getTime()) + " " + eventNames.get(eventIndex).getName() + " " +
+                        eventNames.get(eventIndex).getMinutes() + "min";
+
+                eventNames.get(eventIndex).setName(sessionTime);
+                cal.add(Calendar.MINUTE, eventNames.get(eventIndex).getMinutes());
+                SessionTitle = "Day" + " " + (eventCountIndex + 1);
+                eventNames.get(eventIndex).setDays(SessionTitle);
+            }
+            if (sumMorning < eventNames.get(eventIndex).getMinutes())
+                break;
+
+            if (sumMorning > 0)
+                continue;
+
+            if (sumMorning <= 0)
+                break;
+        }
+
+
+        eventNames.get(eventIndex).setLunchTime(true);
+        sessionTime = "12:00 PM" + " " + "Lunch";
+        eventNames.get(eventIndex).setLunch(sessionTime);
+        cal.add(Calendar.MINUTE, 60);
+
+        eventIndex++;
+
+        for(;eventIndex< totalEventCount;eventIndex++) {
+            // Get the combination of 180 and fill it
+            if (sumAfternoon >= eventNames.get(eventIndex).getMinutes()) {
+                sumAfternoon = sumAfternoon - eventNames.get(eventIndex).getMinutes();
+                sessionTime = sdf.format(cal.getTime()) + " " + eventNames.get(eventIndex).getName() + " " + eventNames.get(eventIndex).getMinutes() + "min";
+
+                eventNames.get(eventIndex).setName(sessionTime);
+                cal.add(Calendar.MINUTE, eventNames.get(eventIndex).getMinutes());
+                SessionTitle = "Day" + " " + (eventCountIndex + 1);
+                eventNames.get(eventIndex).setDays(SessionTitle);
+            }
+            if (sumAfternoon < eventNames.get(eventIndex).getMinutes())
+                break;
+
+            if (sumAfternoon > 0)
+                continue;
+
+            if (sumAfternoon <= 0)
+                break;
+        }
+
+        if(totalEventCount == (eventIndex))
+            --eventIndex;
+        eventNames.get(eventIndex).setNetworkingTIme(true);
+        sessionTime = sdf.format(cal.getTime()) + " " + "Networking Event";
+        eventNames.get(eventIndex).setNetworking(sessionTime);
+
+        eventIndex++;
+        return eventIndex;
+
+    }
+}
+
+/// main
+package com.grootan.project;
+
+import com.grootan.project.conferences.conferenceMain;
+import com.grootan.project.configs.configs;
+import com.grootan.project.conferences.scheduleConference;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // creating object for conference
+        conferenceMain conference = new conferenceMain();
+
+        // function to pass the required input file
+        conference.fileRead(configs.INPUT_FILE);
+
+        // getting the estimated number of days from the input file provided
+        int numberOfDays = conference.getCountEventDays();
+
+        int eventIndex = 0;
+
+        // scheduling all the events for the estimated number of days
+        for(int index = 0; index <numberOfDays; index++)
+        {
+            //eventIndex = scheduleConference.scheduleEvents(index, conference.getEventNames(), conference.getCountEventDays(), eventIndex, conference.getCountEvents());
+            scheduleConference.updatedscheduleEvents(index, conference.getEventNames(), conference.getCountEventDays(), eventIndex, conference.getCountEvents());
+        }
+
+        // printing the events list for number of days
+        conference.eventsList(conference.getEventNames());
+    }
+}
+
+// updated
+// updated scheduled events
+    public static void updatedscheduleEvents(int eventCountIndex, List<event> eventNames,
+                                     int eventCount, int startEventIndex, int totalEventCount){
+
+        // gives the required time stamp
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a");
+        Calendar cal = new GregorianCalendar();
+        cal.set(Calendar.HOUR, 9);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.AM_PM, Calendar.AM);
+
+        int sumMorning = configs.MORNING_DURATION;  // 180
+        int sumAfternoon = configs.AFTERNOON_DURATION; // 240
+
+        int eventIndex;
+
+        String sessionTime; // holds the event name along with the time it's scheduled
+        String SessionTitle; // indicates the day in which it's perfomed
+
+        int i=0, j=0;
+        for(i=0; i< totalEventCount;i++) {
+            for(j=0; j< totalEventCount;j++) {
+
+                // Schedules the morning session of each day
+                if (sumMorning >= eventNames.get(j).getMinutes() && !eventNames.get(j).isPicked_status()) {
+
+                    eventNames.get(j).setPickedStatus(true);
+                    sumMorning = sumMorning - eventNames.get(j).getMinutes();
+
+                    sessionTime = sdf.format(cal.getTime()) + " " + eventNames.get(j).getName() + " " +
+                            eventNames.get(j).getMinutes() + "min";
+
+                    eventNames.get(j).setName(sessionTime);
+                    cal.add(Calendar.MINUTE, eventNames.get(j).getMinutes());
+                    SessionTitle = "Day" + " " + (eventCountIndex + 1);
+                    System.out.println(sessionTime);
+                    eventNames.get(j).setDays(SessionTitle);
+                }
+                if (sumMorning < eventNames.get(j).getMinutes())
+                    break;
+
+                if (sumMorning > 0)
+                    continue;
+
+                if (sumMorning <= 0)
+                    break;
+            }
+            if (sumMorning < eventNames.get(j).getMinutes())
+                break;
+
+            if (sumMorning > 0)
+                continue;
+
+            if (sumMorning <= 0)
+                break;
+
+            j =0;
+        }
+
+
+        eventNames.get(i).setLunchTime(true);
+        sessionTime = "12:00 PM" + " " + "Lunch";
+        eventNames.get(i).setLunch(sessionTime);
+        cal.add(Calendar.MINUTE, 60);
+
+        //eventIndex++;
+
+        // Schedules the afternoon session of each day
+        for(i=0; i< totalEventCount;i++) {
+            for(j=0; j< totalEventCount;j++) {
+                if (sumAfternoon >= eventNames.get(j).getMinutes() && !eventNames.get(j).isPicked_status()) {
+                    eventNames.get(j).setPickedStatus(true);
+                    sumAfternoon = sumAfternoon - eventNames.get(j).getMinutes();
+                    sessionTime = sdf.format(cal.getTime()) + " " + eventNames.get(j).getName() + " " + eventNames.get(j).getMinutes() + "min";
+
+                    eventNames.get(j).setName(sessionTime);
+                    cal.add(Calendar.MINUTE, eventNames.get(j).getMinutes());
+                    SessionTitle = "Day" + " " + (eventCountIndex + 1);
+                    eventNames.get(j).setDays(SessionTitle);
+                }
+                if (sumAfternoon < eventNames.get(j).getMinutes())
+                    break;
+
+                if (sumAfternoon > 0)
+                    continue;
+
+                if (sumAfternoon <= 0)
+                    break;
+            }
+
+            if (sumAfternoon > 0)
+                continue;
+
+            if (sumAfternoon <= 0)
+                break;
+        }
+
+        // in the end, adding the event of networking
+        if(totalEventCount == (i))
+            --i;
+        eventNames.get(i).setNetworkingTIme(true);
+        sessionTime = sdf.format(cal.getTime()) + " " + "Networking Event";
+        eventNames.get(i).setNetworking(sessionTime);
+
+       // eventIndex++;
+//        return eventIndex; // returns the index which is last processed
+
+    }
