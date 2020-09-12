@@ -68,6 +68,22 @@ Track 2:
 05:00PM Networking Event
 ```
 
+### Algorithm
+
+<div>
+  <ul>
+    <li> Read the input from the file and store it as list of strings</li>
+    <li> Parse each String and get the necessary fields and store it in the object</li>
+    <li> Sort the events based on time in descending order</li>
+    <li> Morning session is 180 minutes and the evening is 240 minutes</li>
+    <li> Find the best fit combination for each session and remove it from the main List of events</li>
+    <li> Track the events that are removed and store it in the list in the format of output (using calender class to get the timings)</li>
+    <li> If some sessions are yet to be filled, pass it on to the next day and repeat the above steps</li>
+  </ul>
+</div>
+
+> Input.txt holds the input of the program
+
 ## BUGs or comments
 [Create new Issues](https://github.com/sharangramana/Grootan-Assessment-Round-Project/issues) (preferred)
 <br>
